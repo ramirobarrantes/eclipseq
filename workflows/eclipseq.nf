@@ -5,7 +5,14 @@
 */
 
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
+include { CUTADAPT               } from '../modules/nf-core/cutadapt/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+include { FASTQ_ALIGN_STAR       } from '../subworkflows/nf-core/fastq_align_star/main'
+include { BAM_MARKDUPLICATES_PICARD } from '../subworkflows/nf-core/bam_markduplicates_picard/main' 
+include { DEEPTOOLS_BAMCOVERAGE } from '../modules/nf-core/deeptools/bamcoverage/main' 
+include { SAMTOOLS_MERGE } from '../modules/nf-core/samtools/merge/main'       
+include { CLIPPER          } from '../modules/local/processes.nf'
+include { CREATEREADNUM          } from '../modules/local/processes.nf'
 include { paramsSummaryMap       } from 'plugin/nf-validation'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -33,7 +40,61 @@ workflow ECLIPSEQ {
     FASTQC (
         ch_samplesheet
     )
+
+    CUTADAPT (
+    	ch_samplesheet
+    )
+
+    FASTQ_ALIGN_STAR(
+        CUTADAPT.out.reads,
+        [[:],file(params.star_index)],
+        [[:],file(params.star_gtf)],
+        'TRUE',
+        'Illumina',
+        '',
+        [[:],file(params.star_fasta)],
+        ''
+    )
+
+    BAM_MARKDUPLICATES_PICARD(
+	FASTQ_ALIGN_STAR.out.bam,
+	[[:],file(params.star_fasta)],
+        [[:],file(params.star_fasta_fai)])
+
+    //Merge technical replicates of the same type
+    BAM_MARKDUPLICATES_PICARD.out.bam.map {
+        meta, bam ->
+        fmeta = meta
+ 	fmeta.newid = fmeta.sample
+        [fmeta, bam] }.view()
+//        [ fmeta, bam ] }.view()
+/*        .groupTuple(by: [0])
+        .map { it ->  [ it[0], it[1].flatten() ] }
+        .set { ch_merged_bam }
+*/   
+//     SAMTOOLS_MERGE(ch_merged_bam)
+
+    //CLIPPER(BAM_MARKDUPLICATES_PICARD.out.bam)
+
+//    DEEPTOOLS_BAMCOVERAGE(
+//	BAM_MARKDUPLICATES_PICARD.out.bam.join(BAM_MARKDUPLICATES_PICARD.out.bai,by: [0]),
+//	file(params.star_fasta),
+//        file(params.star_fasta_fai)
+//	)
+
+    //CREATEREADNUM(BAM_MARKDUPLICATES_PICARD.out.bam)
+   
+    //BAM_MARKDUPLICATES_PICARD.out.bam.mix(CREATEREADNUM.out.readnum).map {
+    //    meta, result ->
+    //    fmeta = meta
+    //    fmeta.id = fmeta.id
+   //     [ fmeta, result ] }
+   //     .groupTuple(by: [0])
+    //    .map { it ->  [ it[0], it[1].flatten() ] }
+    //    .set { ch_ }
+
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
+    ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT.out.log.collect{it[1]})
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
     //
