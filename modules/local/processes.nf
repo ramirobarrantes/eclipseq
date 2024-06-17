@@ -59,7 +59,7 @@ process OVERLAP_PEAKS {
     container  'docker://brianyee/eclip:0.7.0_perl'
 
     input:
-    tuple val(meta), path(bam), path(readnum), path(bed)
+    tuple val(meta), path(background), path(signal)
 
     output:
     tuple val(meta), path("*.bed"), emit: bed
@@ -67,7 +67,7 @@ process OVERLAP_PEAKS {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    overlap_peakfi_with_bam_PE.pl ${bam[0]} ${bam[1]} ${bed[0]} ${readnum[0]} ${readnum[1]} ${prefix}.normed.bed
+    overlap_peakfi_with_bam_PE.pl ${signal.bam} ${background.bam} ${signal.bed} ${signal.readnum} ${background.readnum} ${prefix}.normed.bed
     """
 }
 
