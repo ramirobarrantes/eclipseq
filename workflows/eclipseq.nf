@@ -75,6 +75,23 @@ workflow ECLIPSEQ {
    
     CREATE_BIGWIG(REMOVE_UNMAPPED_READS.out.bam,file(params.chromosomeSize))
 
+    REMOVE_UNMAPPED_READS.out.bam.join(CREATEREADNUM.out.readnum).join(CLIPPER.out.bed)
+    .map { result  ->
+         tuple(result[0].sample,result[0].replicate,[type:result[0].type,bam:result[1],readnum:result[2],bed:result[3]])
+    }
+    .groupTuple(
+         by: [0, 1],
+         sort: { e1, e2 -> e1.type <=> e2.type }
+    )
+    .map {
+       result ->
+       [[id:result[0],replicate:result[1]],[result[2][0].bam,result[2][0].readnum,result[2][0].bed],[result[2][1].bam,result[2][1].readnum,result[2][1].bed]]
+    }
+    .set { ch_bamreadbed }
+
+    OVERLAP_PEAKS(ch_bamreadbed)
+
+    MERGE_OVERLAPPING_PEAKS(OVERLAP_PEAKS.out.bed)
 
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT.out.log.collect{it[1]})
