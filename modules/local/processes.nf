@@ -67,7 +67,7 @@ process OVERLAP_PEAKS {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    overlap_peakfi_with_bam_PE.pl ${signal.bam} ${background.bam} ${signal.bed} ${signal.readnum} ${background.readnum} ${prefix}.normed.bed
+    overlap_peakfi_with_bam_PE.pl ${signal[0]} ${background[0]} ${signal[2]} ${signal[1]} ${background[1]} ${prefix}.normed.bed
     """
 }
 
