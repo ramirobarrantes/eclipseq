@@ -19,7 +19,7 @@
 
 ## Introduction
 
-**nf-core/eclipseq** is a bioinformatics pipeline that runs a version of [Clipper pipeline](https://www.encodeproject.org/documents/1f171ac6-a36a-41ac-b632-741aeb47aad2/@@download/attachment/eCLIP_analysisSOP_v2.3.pdf)
+**nf-core/eclipseq** is a bioinformatics pipeline that runs a version of [Clipper pipeline](https://www.encodeproject.org/documents/1f171ac6-a36a-41ac-b632-741aeb47aad2/@@download/attachment/eCLIP_analysisSOP_v2.3.pdf). The purpose of this pipeline is to detect RNA Binding protein binding sites.
 
 ![Alt text](eclipseq.drawio.png)
 
@@ -27,7 +27,7 @@ Workflow steps:
 1.  Extract unique molecular barcodes using umi_tools (?do we need this?)
 2.  Trim adapters using cutadapt (?? do we have the adaptors)
 3.  QC with FastQC
-4.  Alignment to human genome (GRCh38 gencode v36) using STAR aligner
+4.  Alignment to genome (GRCh38 gencode v36) using STAR aligner
 5.  Sorting and indexing using samtools
 6.  Remove duplicates using umi_tools
 7.  Call Peaks using Clipper0. Concatenate if necessary
@@ -38,54 +38,36 @@ Workflow steps:
 
 If you are new to nextflow and nf-core, please create a mamba/conda environment as follows:
 
-
 Next, make a copy of runEclipseq_template.sh to runEclipseq.sh and edit it appropriately.
 
 Setup the genome: 
 
-First, prepare a samplesheet with your input data that looks as follows:
+1. Download the genome you will use
+2. Modify indexGenome.sh
+3. Run indexGenome.sh
+4. Index the genome with "samtools faidx genomeName.fa"
+5. Calculate the chromosome sizes using "cut -f1,2 genomeName.fa.fai > sizes.genome"
+6. Edit nextflow.config parameter to use this genome.
+
+Then, prepare a samplesheet with your input data that looks as follows:
 
 `samplesheet.csv`:
 
 ```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+ID,SAMPLE,REPLICATE,TYPE,FASTQ1,FASTQ2
+CONTROL_REP1_SIGNAL,CONTROL,REP1,SIGNAL,s1_R1.fastq.gz,s1_R2.fastq.gz
 ```
 
 Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
 
--->
-
 Now, you can run the pipeline using:
 
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
-
 ```bash
-nextflow run nf-core/eclipseq \
-   -profile <docker/singularity/.../institute> \
-   --input samplesheet.csv \
-   --outdir <OUTDIR>
+sbatch runEclipseq.sh samplesheet.csv outputDirectory
 ```
-
-> [!WARNING]
-> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
-> see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
-
-For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/eclipseq/usage) and the [parameter documentation](https://nf-co.re/eclipseq/parameters).
-
-## Pipeline output
-
-To see the results of an example test run with a full size dataset refer to the [results](https://nf-co.re/eclipseq/results) tab on the nf-core website pipeline page.
-For more details about the output files and reports, please refer to the
-[output documentation](https://nf-co.re/eclipseq/output).
-
 ## Credits
 
-nf-core/eclipseq was originally written by Ramiro Barrantes Reynolds.
-
-We thank the following people for their extensive assistance in the development of this pipeline:
-
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
+nf-core/eclipseq was originally written by Ramiro Barrantes Reynolds with the help of Zach Miller.
 
 ## Contributions and Support
 
@@ -98,7 +80,7 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 <!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
 <!-- If you use nf-core/eclipseq for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
 
-<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
+
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
