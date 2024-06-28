@@ -21,6 +21,7 @@
 
 **nf-core/eclipseq** is a bioinformatics pipeline that runs a version of [Clipper pipeline](https://www.encodeproject.org/documents/1f171ac6-a36a-41ac-b632-741aeb47aad2/@@download/attachment/eCLIP_analysisSOP_v2.3.pdf)
 
+![Alt text](eclipseq.drawio.png)
 
 Workflow steps:
 1.  Extract unique molecular barcodes using umi_tools (?do we need this?)
@@ -35,11 +36,12 @@ Workflow steps:
 
 ## Usage
 
-> [!NOTE]
-> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
+If you are new to nextflow and nf-core, please create a mamba/conda environment as follows:
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
+
+Next, make a copy of runEclipseq_template.sh to runEclipseq.sh and edit it appropriately.
+
+Setup the genome: 
 
 First, prepare a samplesheet with your input data that looks as follows:
 
