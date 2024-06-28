@@ -19,18 +19,17 @@
 
 ## Introduction
 
-**nf-core/eclipseq** is a bioinformatics pipeline that ...
+**nf-core/eclipseq** is a bioinformatics pipeline that runs a version of [Clipper pipeline](https://www.encodeproject.org/documents/1f171ac6-a36a-41ac-b632-741aeb47aad2/@@download/attachment/eCLIP_analysisSOP_v2.3.pdf)
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
 
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
-
+Workflow steps:
+1.  Extract unique molecular barcodes using umi_tools (?do we need this?)
+2.  Trim adapters using cutadapt (?? do we have the adaptors)
+3.  QC with FastQC
+4.  Alignment to human genome (GRCh38 gencode v36) using STAR aligner
+5.  Sorting and indexing using samtools
+6.  Remove duplicates using umi_tools
+7.  Call Peaks using Clipper0. Concatenate if necessary
 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
 
