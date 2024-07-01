@@ -24,23 +24,31 @@
 ![Alt text](eclipseq.drawio.png)
 
 Workflow steps:
-1.  Extract unique molecular barcodes using umi_tools (?do we need this?)
-2.  Trim adapters using cutadapt (?? do we have the adaptors)
-3.  QC with FastQC
-4.  Alignment to genome (GRCh38 gencode v36) using STAR aligner
-5.  Sorting and indexing using samtools
-6.  Remove duplicates using umi_tools
-7.  Call Peaks using Clipper0. Concatenate if necessary
-1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+
+1.  QC with [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+2.  Trim adapters using [cutadapt](https://cutadapt.readthedocs.io/en/stable/)
+3.  Alignment to genome (GRCh38 gencode v36) using [STAR aligner](https://github.com/alexdobin/STAR)
+4.  Remove duplicates using [Picard tools](https://broadinstitute.github.io/picard/)
+5.  Sorting and indexing and removing unmapped reads using [samtools](http://www.htslib.org/)
+6.  Make bigwig files using the [makebigwigfiles](https://github.com/YeoLab/makebigwigfiles) program
+7.  Call Peaks using [Clipper](https://github.com/YeoLab/clipper). Concatenate if necessary
+8.  Normalize peaks using [Yeolab custom scripts](https://github.com/YeoLab/gscripts/tree/master/perl_scripts)
+9.  Perform entropy calculations using [merge peaks scripts](https://github.com/YeoLab/merge_peaks/blob/master/README.md)
+10. Calculate the [Irreproducible Discovery Rate](https://arxiv.org/abs/1110.4705)
+
+## Dependencies
+
+- [Nextflow](https://www.nextflow.io/)
+- [Singularity](https://sylabs.io/singularity/) or [Docker](https://www.docker.com/) - set the profile as singularity or docker during runtime. If you are using UVM's VACC' then singularity is already installed there.
+
+We suggest you setup a conda/mamba environment and install nextflow.
 
 ## Usage
 
-If you are new to nextflow and nf-core, please create a mamba/conda environment as follows:
+Make a copy of runEclipseq_template.sh to runEclipseq.sh and edit it appropriately.
 
-Next, make a copy of runEclipseq_template.sh to runEclipseq.sh and edit it appropriately.
-
-Setup the genome: 
+The genome should hopefully be setup already for your group in a shared space, but if not these are the steps:
+Setup the genome:
 
 1. Download the genome you will use
 2. Modify indexGenome.sh
@@ -65,22 +73,17 @@ Now, you can run the pipeline using:
 ```bash
 sbatch runEclipseq.sh samplesheet.csv outputDirectory
 ```
+
 ## Credits
 
-nf-core/eclipseq was originally written by Ramiro Barrantes Reynolds with the help of Zach Miller.
+nf-core/eclipseq was originally written by Ramiro Barrantes Reynolds with the help of Zach Miller. We had tremendous help from [Brian Yee](https://yeolab.com/brian-yee), the original developer of Clipper.
 
-## Contributions and Support
-
-If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
-
-For further information or help, don't hesitate to get in touch on the [Slack `#eclipseq` channel](https://nfcore.slack.com/channels/eclipseq) (you can join with [this invite](https://nf-co.re/join/slack)).
+This work was possible thanks to support from the [Vermont Integrative Genomics Resource Bioinformatics Core](https://www.med.uvm.edu/vigr/bioinformatics) . Computations using this work are being done using the [Vermont Advanced Computing Core](https://www.uvm.edu/vacc)
 
 ## Citations
 
 <!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
 <!-- If you use nf-core/eclipseq for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
-
-
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
@@ -91,3 +94,13 @@ You can cite the `nf-core` publication as follows:
 > Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
 >
 > _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
+
+## References
+
+Blue, S. M., B. A. Yee, G. A. Pratt, J. R. Mueller, S. S. Park, A. A. Shishkin, A. C. Starner, E. L. Van Nostrand, and G. W. Yeo. 2022. “Transcriptome-Wide Identification of RNA-Binding Protein Binding Sites Using seCLIP-Seq.” Journal Article. Nat Protoc 17 (5): 1223–65. https://doi.org/10.1038/s41596-022-00680-z.
+
+Li, Q., Brown, J. B., Huang, H., and Bickel, P. J., “Measuring reproducibility of high-throughput experiments”, <i>arXiv e-prints</i>, 2011. doi:10.48550/arXiv.1110.4705.
+
+Van Nostrand, Eric L., et al. "Robust, Cost-Effective Profiling of RNA Binding Protein Targets with Single-end Enhanced Crosslinking and Immunoprecipitation (seCLIP)." mRNA Processing. Methods Mol Biol. 2017;1648:177-200.
+
+Van Nostrand, E.L., Pratt, G.A., Shishkin, A.A., Gelboin-Burkhart, C., Fang, M.Y., Sundararaman, B., Blue, S.M., Nguyen, T.B., Surka, C., Elkins, K. and Stanton, R. "Robust transcriptome-wide discovery of RNA-binding protein binding sites with enhanced CLIP (eCLIP)." Nature methods 13.6 (2016): 508-514.
