@@ -78,22 +78,11 @@ sbatch runEclipseq.sh samplesheet.csv outputDirectory
 
 nf-core/eclipseq was originally written by Ramiro Barrantes Reynolds with the help of Zach Miller. We had tremendous help from [Brian Yee](https://yeolab.com/brian-yee), the original developer of Clipper.
 
-This work was possible thanks to support from the [Vermont Integrative Genomics Resource Bioinformatics Core](https://www.med.uvm.edu/vigr/bioinformatics) . Computations using this work are being done using the [Vermont Advanced Computing Core](https://www.uvm.edu/vacc)
+This work was possible thanks to support from the [Vermont Integrative Genomics Resource Bioinformatics Core](https://www.med.uvm.edu/vigr/bioinformatics) and [The Translational Global Infectious Diseases Research Center](http://www.med.uvm.edu/tgircobre/home) . Computations using this work are being done using the [Vermont Advanced Computing Core](https://www.uvm.edu/vacc)
 
 ## Citations
 
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use nf-core/eclipseq for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
-
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
-
-You can cite the `nf-core` publication as follows:
-
-> **The nf-core framework for community-curated bioinformatics pipelines.**
->
-> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
->
-> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
 
 ## References
 
