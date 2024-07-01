@@ -47,7 +47,36 @@ We suggest you setup a conda/mamba environment and install nextflow.
 
 Make a copy of runEclipseq_template.sh to runEclipseq.sh and edit it appropriately.
 
-The genome should hopefully be setup already for your group in a shared space, but if not these are the steps:
+The genome should hopefully be setup already for your group in a shared space, instructions for setting up a new genome are at the end of this document.
+
+Prepare a samplesheet with your input data that looks as follows:
+
+`samplesheet.csv`:
+
+```csv
+ID,SAMPLE,REPLICATE,TYPE,FASTQ1,FASTQ2
+CONTROL_REP1_SIGNAL,CONTROL,REP1,SIGNAL,s1_R1.fastq.gz,s1_R2.fastq.gz
+```
+
+Each row represents a pair of fastq files - this pipeline has only been tested with paired end sequencing data.
+
+Now, you can run the pipeline using:
+
+```bash
+sbatch runEclipseq.sh samplesheet.csv outputDirectory species
+```
+
+The _species_ parameter needs to be one of the following:
+
+- hg19
+- GRCh38
+- ce10
+- dm3
+- mm9
+- mm10
+
+## Setting up a new genome
+
 Setup the genome:
 
 1. Download the genome you will use
@@ -57,22 +86,7 @@ Setup the genome:
 5. Calculate the chromosome sizes using "cut -f1,2 genomeName.fa.fai > sizes.genome"
 6. Edit nextflow.config parameter to use this genome.
 
-Then, prepare a samplesheet with your input data that looks as follows:
-
-`samplesheet.csv`:
-
-```csv
-ID,SAMPLE,REPLICATE,TYPE,FASTQ1,FASTQ2
-CONTROL_REP1_SIGNAL,CONTROL,REP1,SIGNAL,s1_R1.fastq.gz,s1_R2.fastq.gz
-```
-
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
-
-Now, you can run the pipeline using:
-
-```bash
-sbatch runEclipseq.sh samplesheet.csv outputDirectory
-```
+If the genome is not one of the species supported, please talk to the maintainer and refer to [this document](https://github.com/YeoLab/clipper/wiki/Supporting-additional-species)
 
 ## Credits
 
