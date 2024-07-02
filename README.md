@@ -19,7 +19,7 @@
 
 ## Introduction
 
-**nf-core/eclipseq** is a bioinformatics pipeline that runs a version of [Clipper pipeline](https://www.encodeproject.org/documents/1f171ac6-a36a-41ac-b632-741aeb47aad2/@@download/attachment/eCLIP_analysisSOP_v2.3.pdf). The purpose of this pipeline is to detect RNA Binding protein binding sites.
+**nf-core/eclipseq** is a bioinformatics pipeline that runs a version of the [Clipper pipeline](https://www.encodeproject.org/documents/1f171ac6-a36a-41ac-b632-741aeb47aad2/@@download/attachment/eCLIP_analysisSOP_v2.3.pdf) from [Gene Yeo's group](https://yeolab.com/) at UCSD. The purpose of this pipeline is to detect RNA Binding protein binding sites.
 
 ![Alt text](eclipseq.drawio.png)
 
@@ -81,7 +81,7 @@ Setup the genome:
 
 1. Download the genome you will use
 2. Modify indexGenome.sh
-3. Run indexGenome.sh
+3. Run indexGenome.sh (sbatch indexGenome.sh if you are in a slurm environment)
 4. Index the genome with "samtools faidx genomeName.fa"
 5. Calculate the chromosome sizes using "cut -f1,2 genomeName.fa.fai > sizes.genome"
 6. Edit nextflow.config parameter to use this genome.
