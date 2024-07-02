@@ -6,6 +6,7 @@ process CLIPPER {
 
     input:
     tuple val(meta), path(bam)
+    val species
 
     output:
     tuple val(meta), path("*.bed"), emit: bed
@@ -13,7 +14,7 @@ process CLIPPER {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    clipper --species hg19 --bam ${bam} --outfile ${prefix}.clip.peakClusters.bed
+    clipper --species ${species} --bam ${bam} --outfile ${prefix}.clip.peakClusters.bed
     """
 }
 
@@ -66,8 +67,9 @@ process OVERLAP_PEAKS {
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def replicate = task.ext.prefix ?: "${meta.replicate}"
     """
-    overlap_peakfi_with_bam_PE.pl ${signal[0]} ${background[0]} ${signal[2]} ${signal[1]} ${background[1]} ${prefix}.normed.bed
+    overlap_peakfi_with_bam_PE.pl ${signal[0]} ${background[0]} ${signal[2]} ${signal[1]} ${background[1]} ${prefix}_${replicate}.normed.bed
     """
 }
 
@@ -84,8 +86,9 @@ process MERGE_OVERLAPPING_PEAKS {
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def replicate = task.ext.prefix ?: "${meta.replicate}"
     """
-    compress_l2foldenrpeakfi_for_replicate_overlapping_bedformat_outputfull.pl ${bed} ${prefix}.normed.compressed.bed
+    compress_l2foldenrpeakfi_for_replicate_overlapping_bedformat_outputfull.pl ${bed} ${prefix}_${replicate}.normed.compressed.bed
     """
 }
 
@@ -95,17 +98,20 @@ process MAKE_INFORMATION_CONTENT_FROM_PEAKS {
     container  'docker://brianyee/merge_peaks:0.1.0'
 
     input:
-    tuple val(meta), path(results)
+    tuple val(meta), path(compressed_bed)
+    tuple val(meta), path(background), path(signal)
 
     output:
     tuple val(meta), path("*.full"), emit: full
+    tuple val(meta), path("*.excessreads"), emit: excessreads
     tuple val(meta), path("*.bed"), emit: bed
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def replicate = task.ext.prefix ?: "${meta.replicate}"
     """
-    make_informationcontent_from_peaks.pl ${results[2]} ${results[0]} ${results[1]} ${prefix}.entropy.full ${prefix}.entropy.excessreads
-    full_to_bed.py --input ${prefix}.entropy.full --output ${prefix}.entropy.bed 
+    make_informationcontent_from_peaks.pl ${compressed_bed} ${signal[1]} ${background[1]} ${prefix}_${replicate}.entropy.full ${prefix}_${replicate}.entropy.excessreads   
+    full_to_bed.py --input ${prefix}_${replicate}.entropy.full --output ${prefix}_${replicate}.entropy.bed 
     """
 }
 
@@ -123,7 +129,7 @@ process IDR {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    idr --samples ${bed} --input-file-type bed --rank 5 --peak-merge-method max --plot true --output-file ${prefix}.idr
+    idr --samples ${bed[0]} ${bed[1]} --input-file-type bed --rank 5 --peak-merge-method max --plot  --output-file ${prefix}.idr
     """
 }
 
