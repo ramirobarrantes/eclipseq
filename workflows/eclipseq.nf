@@ -69,7 +69,7 @@ workflow ECLIPSEQ {
 
     REMOVE_UNMAPPED_READS(BAM_MARKDUPLICATES_PICARD.out.bam)
 
-    CLIPPER(REMOVE_UNMAPPED_READS.out.bam)
+    CLIPPER(REMOVE_UNMAPPED_READS.out.bam,params.species)
 
     CREATEREADNUM(REMOVE_UNMAPPED_READS.out.bam)
    
@@ -92,6 +92,24 @@ workflow ECLIPSEQ {
     OVERLAP_PEAKS(ch_bamreadbed)
 
     MERGE_OVERLAPPING_PEAKS(OVERLAP_PEAKS.out.bed)
+
+    MAKE_INFORMATION_CONTENT_FROM_PEAKS(MERGE_OVERLAPPING_PEAKS.out.bed,ch_bamreadbed)
+
+    MAKE_INFORMATION_CONTENT_FROM_PEAKS.out.bed
+    .map { result  ->
+         tuple(result[0].id,result[0].replicate,result[1])
+    }
+    .groupTuple(
+         by: [0],
+         sort: { e1, e2 -> e1[1] <=> e2[1] }
+    )
+    .map {
+       result ->
+       [[id:result[0]],result[2]]
+    }
+    .set { ch_replicatedBeds }
+
+    IDR(ch_replicatedBeds)
 
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT.out.log.collect{it[1]})
