@@ -64,6 +64,7 @@ process OVERLAP_PEAKS {
 
     output:
     tuple val(meta), path("*.bed"), emit: bed
+    tuple val(meta), path("*.bed.full"), emit: bedfull
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -83,12 +84,13 @@ process MERGE_OVERLAPPING_PEAKS {
 
     output:
     tuple val(meta), path("*.bed"), emit: bed
+    tuple val(meta), path("*.bed.full"), emit: bedfull
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     def replicate = task.ext.prefix ?: "${meta.replicate}"
     """
-    compress_l2foldenrpeakfi_for_replicate_overlapping_bedformat_outputfull.pl ${bed} ${prefix}_${replicate}.normed.compressed.bed
+    compress_l2foldenrpeakfi_for_replicate_overlapping_bedformat_outputfull.pl ${bed} ${prefix}_${replicate}.normed.compressed.bed ${prefix}_${replicate}.normed.compressed.bed.full
     """
 }
 
@@ -98,8 +100,7 @@ process MAKE_INFORMATION_CONTENT_FROM_PEAKS {
     container  'docker://brianyee/merge_peaks:0.1.0'
 
     input:
-    tuple val(meta), path(compressed_bed)
-    tuple val(meta), path(background), path(signal)
+    tuple val(meta), path(compressed_bed), path(readnum)
 
     output:
     tuple val(meta), path("*.full"), emit: full
@@ -110,14 +111,14 @@ process MAKE_INFORMATION_CONTENT_FROM_PEAKS {
     def prefix = task.ext.prefix ?: "${meta.id}"
     def replicate = task.ext.prefix ?: "${meta.replicate}"
     """
-    make_informationcontent_from_peaks.pl ${compressed_bed} ${signal[1]} ${background[1]} ${prefix}_${replicate}.entropy.full ${prefix}_${replicate}.entropy.excessreads   
-    full_to_bed.py --input ${prefix}_${replicate}.entropy.full --output ${prefix}_${replicate}.entropy.bed 
+    make_informationcontent_from_peaks.pl ${compressed_bed} ${readnum[1]} ${readnum[0]} ${prefix}_${replicate}.entropy.full ${prefix}_${replicate}.entropy.excessreads   
+    full_to_bed.py --input ${prefix}_${replicate}.entropy.full --output ${prefix}_${replicate}.entropy.bed
     """
 }
 
 process IDR {
 
-    publishDir "${params.outdir}/ids", mode: 'copy'
+    publishDir "${params.outdir}/idr", mode: 'copy'
     container  'docker://brianyee/idr:2.0.2'
 
     input:
