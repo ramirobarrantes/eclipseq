@@ -91,9 +91,19 @@ workflow ECLIPSEQ {
 
     OVERLAP_PEAKS(ch_bamreadbed)
 
-    MERGE_OVERLAPPING_PEAKS(OVERLAP_PEAKS.out.bed)
+    MERGE_OVERLAPPING_PEAKS(OVERLAP_PEAKS.out.bedfull)
 
-    MAKE_INFORMATION_CONTENT_FROM_PEAKS(MERGE_OVERLAPPING_PEAKS.out.bed,ch_bamreadbed)
+    ch_bamreadbed
+    .map { result -> 
+   	 tuple([id:result[0].id,replicate:result[0].replicate],[result[1][1],result[2][1]])
+    }
+    .set{ ch_readnum }
+
+
+    MERGE_OVERLAPPING_PEAKS.out.bedfull.join(ch_readnum)
+    .set {ch_compressedFullBedAndReadnum}
+
+    MAKE_INFORMATION_CONTENT_FROM_PEAKS(ch_compressedFullBedAndReadnum)
 
     MAKE_INFORMATION_CONTENT_FROM_PEAKS.out.bed
     .map { result  ->
