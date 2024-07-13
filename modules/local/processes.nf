@@ -74,6 +74,27 @@ process OVERLAP_PEAKS {
     """
 }
 
+process OVERLAP_PEAKS_WITH_IDR {
+
+    publishDir "${params.outdir}/overlapPeaksWithIDR", mode: 'copy'
+    container  'docker://brianyee/eclip:0.7.0_perl'
+
+    input:
+    tuple val(meta), path(background), path(signal)
+
+    output:
+    tuple val(meta), path("*.bed"), emit: bed
+    tuple val(meta), path("*.bed.full"), emit: bedfull
+
+    script:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    def replicate = task.ext.prefix ?: "${meta.replicate}"
+    """
+    overlap_peakfi_with_bam_PE.pl ${signal[0]} ${background[0]} ${signal[2]} ${signal[1]} ${background[1]} ${prefix}_${replicate}.idr.normed.bed
+    """
+}
+
+
 process MERGE_OVERLAPPING_PEAKS {
 
     publishDir "${params.outdir}/compressedOverlapedPeaks", mode: 'copy'
@@ -152,3 +173,43 @@ process CREATE_BIGWIG {
     makebigwigfiles --bw_pos ${prefix}.pos.bw --bw_neg ${prefix}.neg.bw --bam ${bam} --genome ${genome} --direction r
     """
 }
+
+
+process PARSE_IDR_PEAKS {
+
+    publishDir "${params.outdir}/parseIDRPeaks", mode: 'copy'
+    container  'docker://brianyee/merge_peaks:0.1.0'
+
+    input:
+    tuple val(meta), path(idr), path(entropy)
+
+    output:
+    tuple val(meta), path("*.txt"), emit: summaryStats
+
+    script:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    parse_idr_peaks.pl ${idr} ${entropy[0]} ${entropy[1]} ${prefix}.summaryStats.txt
+    """
+}
+
+
+process GET_REPRODUCING_PEAKS {
+
+    publishDir "${params.outdir}/reproducingPeaks", mode: 'copy'
+    container  'docker://brianyee/merge_peaks:0.1.0'
+
+    input:
+    tuple val(meta), val(replicate1), val(replicate2), path(idr) 
+
+    output:
+    tuple val(meta), path("*.full"), emit: full
+    tuple val(meta), path("*.bed"), emit: bed
+
+    script:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    get_reproducing_peaks.pl ${replicate1.full} ${replicate2.full} ${prefix}.${replicate1.replicate}.final.full ${prefix}.${replicate1.replicate}.final.full ${prefix}.${replicate1.replicate}.final.bed ${prefix}.${replicate1.replicate}.final.bed ${replicate1.entropy} ${replicate2.entropy} ${idr}
+    """ 
+}
+
