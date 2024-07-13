@@ -27,7 +27,7 @@ Workflow steps:
 
 1.  QC with [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 2.  Trim adapters using [cutadapt](https://cutadapt.readthedocs.io/en/stable/)
-3.  Alignment to genome (GRCh38 gencode v36) using [STAR aligner](https://github.com/alexdobin/STAR)
+3.  Alignment to genome using [STAR aligner](https://github.com/alexdobin/STAR)
 4.  Remove duplicates using [Picard tools](https://broadinstitute.github.io/picard/)
 5.  Sorting and indexing and removing unmapped reads using [samtools](http://www.htslib.org/)
 6.  Make bigwig files using the [makebigwigfiles](https://github.com/YeoLab/makebigwigfiles) program
@@ -35,13 +35,10 @@ Workflow steps:
 8.  Normalize peaks using [Yeolab custom scripts](https://github.com/YeoLab/gscripts/tree/master/perl_scripts)
 9.  Perform entropy calculations using [merge peaks scripts](https://github.com/YeoLab/merge_peaks/blob/master/README.md)
 10. Calculate the [Irreproducible Discovery Rate](https://arxiv.org/abs/1110.4705)
+11. Run step (8) again but with the peaks from IDR
+12. Get final reproducing peaks
 
-## Dependencies
 
-- [Nextflow](https://www.nextflow.io/)
-- [Singularity](https://sylabs.io/singularity/) or [Docker](https://www.docker.com/) - set the profile as singularity or docker during runtime. If you are using UVM's VACC' then singularity is already installed there.
-
-We suggest you setup a conda/mamba environment and install nextflow.
 
 ## Usage
 
