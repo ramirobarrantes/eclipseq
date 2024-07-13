@@ -19,6 +19,9 @@ include { CREATE_BIGWIG           } from '../modules/local/processes.nf'
 include { MERGE_OVERLAPPING_PEAKS          } from '../modules/local/processes.nf'
 include { MAKE_INFORMATION_CONTENT_FROM_PEAKS   } from '../modules/local/processes.nf'
 include { IDR } from '../modules/local/processes.nf'
+include { PARSE_IDR_PEAKS } from '../modules/local/processes.nf'
+include { OVERLAP_PEAKS_WITH_IDR     } from '../modules/local/processes.nf'
+include { GET_REPRODUCING_PEAKS  } from '../modules/local/processes.nf'
 include { paramsSummaryMap       } from 'plugin/nf-validation'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -29,6 +32,8 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_ecli
     RUN MAIN WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
+overlapPeaksOutputDir = "overlapPeaks"
 
 workflow ECLIPSEQ {
 
@@ -120,6 +125,63 @@ workflow ECLIPSEQ {
     .set { ch_replicatedBeds }
 
     IDR(ch_replicatedBeds)
+
+    MAKE_INFORMATION_CONTENT_FROM_PEAKS.out.full
+    .map { result -> 
+   	 tuple([id:result[0].id],result[1])
+    }
+    .groupTuple(
+         by: [0],
+         sort: { e1, e2 -> e2 <=> e1 }
+    )
+    .set{ ch_entropyFiles }
+
+    IDR.out.join(ch_entropyFiles)
+    .set{ ch_idrWithEntropy }
+
+    PARSE_IDR_PEAKS(ch_idrWithEntropy)
+
+    REMOVE_UNMAPPED_READS.out.bam.join(CREATEREADNUM.out.readnum)
+    .map { result  ->
+         tuple(result[0].sample,result[0].replicate,[type:result[0].type,bam:result[1],readnum:result[2]])
+    }
+    .groupTuple(
+         by: [0, 1],
+         sort: { e1, e2 -> e1.type <=> e2.type }
+    )
+    .map {
+       result ->
+       tuple(result[0],[result[1],result[2]])
+     }
+     .set { ch_bamreadidr }
+
+    IDR.out
+    .map {
+       result -> tuple(result[0].id,result[1]) 
+    }
+    .set {ch_idrWithKey}
+
+    ch_idrWithKey.cross(ch_bamreadidr)
+    .map {
+       result -> tuple([id:result[0][0],replicate:result[1][1][0]],[result[1][1][1][0].bam,result[1][1][1][0].readnum],[result[1][1][1][1].bam,result[1][1][1][1].readnum,result[0][1]]) 
+    } 
+    .set {ch_bamreadidr}
+
+    OVERLAP_PEAKS_WITH_IDR(ch_bamreadidr)
+    
+    OVERLAP_PEAKS_WITH_IDR.out.bedfull.join(MAKE_INFORMATION_CONTENT_FROM_PEAKS.out.full)
+    .map {
+       result -> tuple(result[0].id,[replicate:result[0].replicate,full:result[1],entropy:result[2]])
+    }
+    .groupTuple(
+         by: [0],
+         sort: { e1, e2 -> e1.replicate <=> e2.replicate }   
+    )
+    .join(ch_idrWithKey)
+    .map { result -> tuple(id:result[0],result[1][0],result[1][1],result[2])}
+    .set{ch_fullEntropyIDR}
+
+    GET_REPRODUCING_PEAKS(ch_fullEntropyIDR)
 
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT.out.log.collect{it[1]})
