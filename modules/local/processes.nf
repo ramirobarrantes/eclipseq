@@ -209,7 +209,15 @@ process GET_REPRODUCING_PEAKS {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    get_reproducing_peaks.pl ${replicate1.full} ${replicate2.full} ${prefix}.${replicate1.replicate}.final.full ${prefix}.${replicate2.replicate}.final.full ${prefix}.${replicate1.replicate}.final.bed ${prefix}.${replicate2.replicate}.final.bed ${replicate1.entropy} ${replicate2.entropy} ${idr}
+    get_reproducing_peaks.pl \
+       ${replicate1.full} \
+       ${replicate2.full} \
+       ${prefix}.${replicate1.replicate}.final.full \
+       ${prefix}.${replicate2.replicate}.final.full \
+       ${prefix}.final.bed \
+       ${prefix}.final.custom.bed \
+       ${replicate1.entropy} \
+       ${replicate2.entropy} ${idr}
     """ 
 }
 
