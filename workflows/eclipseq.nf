@@ -6,6 +6,7 @@
 
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { CUTADAPT               } from '../modules/nf-core/cutadapt/main'
+include { CUTADAPT as CUTADAPT2  } from '../modules/nf-core/cutadapt/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { FASTQ_ALIGN_STAR       } from '../subworkflows/nf-core/fastq_align_star/main'
 include { BAM_MARKDUPLICATES_PICARD } from '../subworkflows/nf-core/bam_markduplicates_picard/main' 
