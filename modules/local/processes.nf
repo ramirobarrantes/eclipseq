@@ -12,6 +12,7 @@ process CLIPPER {
     tuple val(meta), path("*.bed"), emit: bed
 
     script:
+
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     clipper --species ${species} --bam ${bam} --outfile ${prefix}.clip.peakClusters.bed
