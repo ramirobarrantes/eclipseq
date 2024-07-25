@@ -56,8 +56,13 @@ workflow ECLIPSEQ {
     	ch_samplesheet
     )
 
+    CUTADAPT2 (
+    	CUTADAPT.out.reads
+    )
+
+
     FASTQ_ALIGN_STAR(
-        CUTADAPT.out.reads,
+        CUTADAPT2.out.reads,
         [[:],file(params.star_index)],
         [[:],file(params.star_gtf)],
         'TRUE',
@@ -74,11 +79,12 @@ workflow ECLIPSEQ {
 
     REMOVE_UNMAPPED_READS(BAM_MARKDUPLICATES_PICARD.out.bam)
 
+    CREATE_BIGWIG(REMOVE_UNMAPPED_READS.out.bam,file(params.chromosomeSize))
+
     CLIPPER(REMOVE_UNMAPPED_READS.out.bam,params.species)
 
     CREATEREADNUM(REMOVE_UNMAPPED_READS.out.bam)
    
-    CREATE_BIGWIG(REMOVE_UNMAPPED_READS.out.bam,file(params.chromosomeSize))
 
     REMOVE_UNMAPPED_READS.out.bam.join(CREATEREADNUM.out.readnum).join(CLIPPER.out.bed)
     .map { result  ->
