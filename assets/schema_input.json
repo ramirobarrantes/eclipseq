@@ -7,20 +7,38 @@
     "items": {
         "type": "object",
         "properties": {
-            "sample": {
+            "UID": {
                 "type": "string",
                 "pattern": "^\\S+$",
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
                 "meta": ["id"]
             },
-            "fastq_1": {
+            "SAMPLE": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Sample name must be provided and cannot contain spaces",
+                "meta": ["sample"]
+            },
+	    "REPLICATE": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "ID indicating replicate or sample name",
+                "meta": ["replicate"]
+            },
+	    "TYPE": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "signal or background",
+                "meta": ["type"]
+            },
+            "FASTQ1": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^\\S+\\.f(ast)?q\\.gz$",
                 "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             },
-            "fastq_2": {
+            "FASTQ2": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
@@ -28,6 +46,6 @@
                 "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             }
         },
-        "required": ["sample", "fastq_1"]
+        "required": ["UID","SAMPLE","REPLICATE","TYPE", "FASTQ1"]
     }
 }

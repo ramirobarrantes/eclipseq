@@ -1,0 +1,10 @@
+UID,SAMPLE,REPLICATE,TYPE,FASTQ1,FASTQ2
+test1_replicate1_signal,test1,replicate1,signal,test-dataset/test1_rep1_signal_R1.fastq.gz,test-dataset/test1_rep1_signal_R2.fastq.gz
+test1_replicate2_signal,test1,replicate2,signal,test-dataset/test1_rep2_signal_R1.fastq.gz,test-dataset/test1_rep2_signal_R2.fastq.gz
+test1_replicate1_background,test1,replicate1,background,test-dataset/test1_rep1_background_R1.fastq.gz,test-dataset/test1_rep1_background_R2.fastq.gz
+test1_replicate2_background,test1,replicate2,background,test-dataset/test1_rep2_background_R1.fastq.gz,test-dataset/test1_rep2_background_R2.fastq.gz
+test2_replicate1_signal,test2,replicate1,signal,test-dataset/test2_rep1_signal_R1.fastq.gz,test-dataset/test2_rep1_signal_R2.fastq.gz
+test2_replicate2_signal,test2,replicate2,signal,test-dataset/test2_rep2_signal_R1.fastq.gz,test-dataset/test2_rep2_signal_R2.fastq.gz
+test2_replicate1_background,test2,replicate1,background,test-dataset/test2_rep1_background_R1.fastq.gz,test-dataset/test2_rep1_background_R2.fastq.gz
+test2_replicate2_background,test2,replicate2,background,test-dataset/test2_rep2_background_R1.fastq.gz,test-dataset/test2_rep2_background_R2.fastq.gz
+
